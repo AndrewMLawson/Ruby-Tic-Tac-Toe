@@ -6,10 +6,11 @@ class GameBoard
 end
 
 class Player
-    attr_reader :name, :marker
+    attr_reader :name, :marker, :moves
     def initialize(name, marker)
         @name = name
         @marker = marker
+        @moves = []
     end
 end
 
@@ -27,6 +28,7 @@ class Game
         @player2 = Player.new(player2_name, player2_marker)
         @board = GameBoard.new()
         @player1_turn = true
+        @wins = [[1, 2, 3], [4, 5, 6], [7, 8 , 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]]
         play_turn()
     end
 
@@ -45,12 +47,16 @@ class Game
             @player1_turn = false
             p "#{@player1.name}, choose your space!"
             move = gets.chomp.to_i
+            @player1.moves.push(move)
             add_marker(move, @player1.marker)
+            win_check(@player1)
         else
             @player1_turn = true
             p "#{@player2.name}, choose your space!"
             move = gets.chomp.to_i
+            @player2.moves.push(move)
             add_marker(move, @player2.marker)
+            win_check(@player2)
         end
     end
 
@@ -60,7 +66,6 @@ class Game
             if @board.rows[i].index(move)
                 to_replace = @board.rows[i].index(move)
                 @board.rows[i][to_replace] = marker
-                play_turn()
                 break
             else
                 i += 1
@@ -68,9 +73,28 @@ class Game
         end
     end
 
-    # def win_check()
-
-    # end
+    # Remember to play_turn()!!!
+    def win_check(player)
+        for i in 0..8 do
+            if i == 8
+                play_turn()
+            elsif @wins[i].all? {|item| player.moves.include?(item)} == true
+                display_win(player.name)
+                break
+            end
+        end
+    end
+    def display_win(player_name)
+        print_current_board()
+        p "You win #{player_name}!"
+        p "Would you like to play again? yes or no?"
+        answer = gets.chomp
+        if answer == "yes"
+            Game.new()
+        else
+            p "Thank you for playing, goodbye!"
+        end
+    end
 end
 
 
